@@ -20,28 +20,18 @@ last_frame_ticks = pygame.time.get_ticks()
 running = True
 while running:
 
+    # Delta time calculations
+    t = pygame.time.get_ticks()
+    delta_time = (t - last_frame_ticks) / 1000.0
+    last_frame_ticks = t
+    
     #Check for events
     for event in pygame.event.get():
         if event.type == pygame.quit:
             running = False
 
-        # Input Handeling
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w :
-                p.position = pygame.Vector2(100, 100)
-            if event.key == pygame.K_d :
-                p.acceleration.x = 0.5
-            if event.key == pygame.K_a :
-                p.acceleration.x = -0.5
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_d :
-                p.acceleration.x = 0.0
+        p.player_controls(event, delta_time)
    
-    # Delta time calculations
-    t = pygame.time.get_ticks()
-    delta_time = (t - last_frame_ticks) / 1000.0
-    last_frame_ticks = t
-
     #Set background
     screen.fill((255, 0, 0))
 
@@ -49,7 +39,7 @@ while running:
     pygame.draw.rect(screen, (155, 155, 155), ground)
 
     # Player Gravity
-    if p.hitbox.collidelist(colision_list) >= 0 :
-        p.isGrounded = True
+    #if p.hitbox.collidelist(colision_list) >= 0 :
+     #   p.isGrounded = True
 
     pygame.display.flip()

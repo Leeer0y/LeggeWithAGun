@@ -7,18 +7,23 @@ class Player:
     def __init__(self) -> None:
         self.position = pygame.Vector2(0.0, 0.0);
         self.hitbox = pygame.Rect(self.position.x, self.position.y, 20, 20)
-       
-        # Movement
-        self.max_walk_speed = 20
+      
+        # Flags
+        self.IsGrounded = False
 
-        # Physics
-        self.isGrounded = False
-        self.mass = 10
-        self.coefficent_friction = 0.4 # dertirmened by ground walking on
-        self.gravity = 0.9
-        self.acceleration = pygame.Vector2(0.0, 0.0)
+        # Movement
+        self.walk_speed = 0
+        self.max_walk_speed = 10
+        self.walk_acceleration = 0.2
+
+        #Physics
         self.velocity = pygame.Vector2(0.0, 0.0)
-        self.friction = pygame.Vector2(0.0, 0.0)
+        self.gravity = 0.4
+
+    def player_controls(self, event, delta_time) :
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_d :
+                self.velocity.x = 20
 
     def render(self, screen, delta_time) :
         pygame.draw.circle(screen, (255, 255, 255), self.position, 15)
@@ -27,20 +32,8 @@ class Player:
         self.hitbox.x = int(self.position.x)
         self.hitbox.y = int(self.position.y)
 
-        # Gravity
-        if self.isGrounded == False :
-            self.acceleration.y = self.gravity
-        else :
-            self.acceleration.y = 0.0
-            self.velocity.y = 0.0
+        # Movement
         
-        #Movement
-        self.velocity = self.velocity + self.acceleration*delta_time
 
-        if self.velocity != 0 :
-            self.position.x += self.velocity.x - (self.mass * self.coefficent_friction) # replace mass with normal force later
-        else :
-            self.position.x += self.veloctiy.x
-
-        self.position.y += self.velocity.y
-
+        self.position.x += self.velocity.x * delta_time
+        self.position.y += self.velocity.y * delta_time
