@@ -20,7 +20,7 @@ s.load_frames((80, 110))
 anim1 = sprite.animation([1, 2, 3], 3)
 s.add_animation("Test", anim1)
 
-anim2 = sprite.animation([9, 10] , 1000)
+anim2 = sprite.animation([9, 10] , 200)
 s.add_animation("walk", anim2)
 
 running = True

@@ -1,5 +1,6 @@
 import pygame
 import player
+import gemoetry
 from player import Player
 
 #Init pygame
@@ -9,11 +10,14 @@ screen = pygame.display.set_mode((800, 800))
 clock = pygame.time.Clock()
 
 p = Player()
-p.position = pygame.Vector2(400, 0)
 
-ground = pygame.Rect(0, 700, 800, 10)
+entities_group = pygame.sprite.Group()
+entities_group.add(p)
 
-colision_list = [ground]
+gemoetry_group = pygame.sprite.Group()
+
+g = gemoetry.rect((0, 0, 0), pygame.Rect(0, 790, 800, 20))
+gemoetry_group.add(g)
 
 # Gameloop
 running = True
@@ -24,16 +28,25 @@ while running:
     # Delta time calculations
     delta_time = clock.get_time() / 1000 
     
-    #Check for events
+    # Check for events
     for event in pygame.event.get():
-        if event.type == pygame.quit:
+        if event.type == pygame.QUIT:
             running = False
 
    
-    #Set background
+    # Set background
     screen.fill((255, 0, 0))
 
-    p.render(screen, delta_time, colision_list)
-    pygame.draw.rect(screen, (155, 155, 155), ground)
+    entities_group.draw(screen)
+    entities_group.update()
+
+    gemoetry_group.draw(screen)
+
+    # Colision
+    entity_colisions = pygame.sprite.groupcollide(entities_group, gemoetry_group, False, False)
+    if entity_colisions :
+        for i in entity_colisions :
+            i.set_grounded(True)
+
 
     pygame.display.flip()

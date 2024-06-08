@@ -1,79 +1,101 @@
 import pygame
+import spritesheet
 
 # TODO
 # Make direction a vector, and velocity a scalar quantity
 
-class Player:
+class Player(pygame.sprite.Sprite):
     def __init__(self) -> None:
-        self.position = pygame.Vector2(0.0, 0.0);
-        self.hitbox = pygame.Rect(self.position.x, self.position.y, 20, 20)
-      
+        # Calling parent class (sprite) constructor
+        pygame.sprite.Sprite.__init__(self)
+
+        self.frames = spritesheet.SpriteSheet("./Assets/Sprites/adventurer_tilesheet.png").load_all_images((80, 110))
+        self.image = pygame.Surface([80, 110]).convert_alpha()
+        self.image.set_colorkey((0, 0, 0))
+        self.image = self.frames[0]
+
+        self.rect = self.image.get_rect()
+
         # Flags
-        self.IsGrounded = False
+        self.is_grounded = False
 
-        # Movement
-        self.walk_speed = 0.0
-        self.max_walk_speed = 100.0
-        self.walk_acceleration = 26
-        
-        self.jumpVelocity = 200
+        # Time 
+        self.clock = pygame.time.Clock()
 
-        #Physics
+        # Physics
         self.velocity = pygame.Vector2(0.0, 0.0)
         self.gravity = 9.8
-        self.friction = 3
+        self.friction = 10 # Changes depending on surface
 
-    def player_controls(self) :
-        keys = pygame.key.get_pressed()
-        
         # Movement
+        self.max_walk_speed = 100.0
+        self.walk_acceleration = 25
+        self.jump_velocity = 200
+
+        # Animations
+        self.annimation = None
+        self.sprite_flipped = False
+        self.walk_animation_threashold = 5 # the speed when the walk animation wont play
+        self.walk_animation = spritesheet.animation([9, 11], 200)
+
+                         
+    def update(self) :
+        # Timing
+        self.clock.tick()
+        delta_time = self.clock.get_time() / 1000
+
+        # Player Input
+        keys = pygame.key.get_pressed()
+
         if keys[pygame.K_d] :
             if self.velocity.x < self.max_walk_speed :
                 self.velocity.x += self.walk_acceleration
+                self.annimation = self.walk_animation
+                self.sprite_flipped = False
         if keys[pygame.K_a] :
             if self.velocity.x > (-self.max_walk_speed) :
                 self.velocity.x -= self.walk_acceleration
+                self.annimation = self.walk_animation
+                self.sprite_flipped = True
         if keys[pygame.K_w] :
-            if self.IsGrounded == True :
-                self.IsGrounded = False
-                self.velocity.y -= self.jumpVelocity
-            #print(self.velocity * delta_time)
-                
-    def render(self, screen, delta_time, collision_list) :
+            if self.is_grounded == True :
+                self.is_grounded = False
+                self.velocity.y -= self.jump_velocity
+        
+        if abs(self.velocity.x) <= self.walk_animation_threashold :
+            self.annimation = None
 
-        # Collisions
-        collisions = self.hitbox.collidelistall(collision_list)
-        if collisions :
-            #test ground
-            for i in collisions :
-                if collision_list[i].top <= self.hitbox.bottom :
-                    self.IsGrounded = True
-        else :
-            self.IsGrounded = False        
 
         # Gravity
-        if self.IsGrounded == False :
+        if self.is_grounded == False :
             self.velocity.y += self.gravity
         else :
             if self.velocity.y > 0.0 :
-                self.velocity.y = 0.0
-
-            #friction
-            if self.velocity :
-                direction_travelling = self.velocity.normalize() # The higher the velocity in a direction, the closer it will be to 1
+                self.velocity.y = 0.0 
+        # Friction
+            if self.velocity.magnitude() > 0.0 :
+                direction_travelling = self.velocity.normalize() # The higher the velocity in a direction, the closer it will be to 1 
                 if abs(self.velocity.magnitude()) > self.friction :
-                    print(direction_travelling * self.friction)
-                    self.velocity -= (direction_travelling * self.friction)
+                    self.velocity -= (direction_travelling * self.friction) # Applys friction in direction traveling
                 else :
                     self.velocity = direction_travelling * 0
 
-        # Movement
-        self.player_controls()
-        self.position.x += self.velocity.x * delta_time
-        self.position.y += self.velocity.y * delta_time
+        # Animations
+        if self.annimation == None :
+            self.image = self.frames[0]
+        else :
+            if self.sprite_flipped :
+                self.image = pygame.transform.flip(self.frames[self.annimation.animate()], True, False).convert_alpha()
+                self.image.set_colorkey((0, 0, 0))
+            else :
+                self.image = self.frames[self.annimation.animate()]
 
-        # Update hitbox
-        self.hitbox.x = int(self.position.x)
-        self.hitbox.y = int(self.position.y)
-
-        pygame.draw.circle(screen, (255, 255, 255), self.position, 15)
+        # Update Player
+        self.rect.x += self.velocity.x * delta_time
+        self.rect.y += self.velocity.y * delta_time
+       
+    # Getters / Setters
+    def set_grounded(self, value : bool) :
+        self.is_grounded = value
+    def get_grounded(self) -> bool :
+        return self.is_grounded
