@@ -16,7 +16,7 @@ class Player:
         self.max_walk_speed = 100.0
         self.walk_acceleration = 26
         
-        self.jumpVelocity = 90
+        self.jumpVelocity = 200
 
         #Physics
         self.velocity = pygame.Vector2(0.0, 0.0)
@@ -34,12 +34,13 @@ class Player:
             if self.velocity.x > (-self.max_walk_speed) :
                 self.velocity.x -= self.walk_acceleration
         if keys[pygame.K_w] :
-            self.velocity.y -= self.jumpVelocity
+            if self.IsGrounded == True :
+                self.IsGrounded = False
+                self.velocity.y -= self.jumpVelocity
             #print(self.velocity * delta_time)
                 
     def render(self, screen, delta_time, collision_list) :
-        pygame.draw.circle(screen, (255, 255, 255), self.position, 15)
-        
+
         # Collisions
         collisions = self.hitbox.collidelistall(collision_list)
         if collisions :
@@ -48,8 +49,7 @@ class Player:
                 if collision_list[i].top <= self.hitbox.bottom :
                     self.IsGrounded = True
         else :
-            self.IsGrounded = False
-        
+            self.IsGrounded = False        
 
         # Gravity
         if self.IsGrounded == False :
@@ -75,3 +75,5 @@ class Player:
         # Update hitbox
         self.hitbox.x = int(self.position.x)
         self.hitbox.y = int(self.position.y)
+
+        pygame.draw.circle(screen, (255, 255, 255), self.position, 15)
