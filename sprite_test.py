@@ -1,5 +1,5 @@
 import pygame
-import sprite
+import spritesheet
 from pygame.transform import scale
 
 SCRREEN_WIDTH = 800

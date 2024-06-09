@@ -4,22 +4,33 @@ import spritesheet
 # TODO
 # Make direction a vector, and velocity a scalar quantity
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self) -> None:
+
+        # Sprite loading and Animations
+        self.frames_idle = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Idle.png").load_all_images((24, 32))
+        self.frames_walk = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Walk.png").load_all_images((22, 33))
+
+        self.animation_idle = spritesheet.Animation(self.frames_idle, 600)
+        self.animation_walk = spritesheet.Animation(self.frames_walk, 300)
+
+        self.scale_factor = 2
+        
         # Calling parent class (sprite) constructor
         pygame.sprite.Sprite.__init__(self)
 
-        self.frames = spritesheet.SpriteSheet("./Assets/Sprites/adventurer_tilesheet.png").load_all_images((80, 110))
-        self.image = pygame.Surface([80, 110]).convert_alpha()
-        self.image.set_colorkey((0, 0, 0))
-        self.image = self.frames[0]
+        self.image = pygame.transform.scale_by(self.frames_idle[0], self.scale_factor)
 
         self.rect = self.image.get_rect()
+        
+        self.animation = self.animation_idle
 
         # Flags
         self.is_grounded = False
+        self.is_flipped = False
 
-        # Time 
+        # Time
         self.clock = pygame.time.Clock()
 
         # Physics
@@ -32,13 +43,17 @@ class Player(pygame.sprite.Sprite):
         self.walk_acceleration = 25
         self.jump_velocity = 200
 
-        # Animations
-        self.annimation = None
-        self.sprite_flipped = False
-        self.walk_animation_threashold = 5 # the speed when the walk animation wont play
-        self.walk_animation = spritesheet.animation([9, 11], 200)
+        # Animation
+        self.walk_animation_threashold = 5
 
-                         
+    def set_animation(self, animation : spritesheet.Animation, flipped = None) :
+        if animation == self.animation :
+            return
+        if flipped != None :
+            self.is_flipped = flipped
+        animation.flipped(self.is_flipped)
+        self.animation = animation
+
     def update(self) :
         # Timing
         self.clock.tick()
@@ -50,21 +65,15 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d] :
             if self.velocity.x < self.max_walk_speed :
                 self.velocity.x += self.walk_acceleration
-                self.annimation = self.walk_animation
-                self.sprite_flipped = False
+                self.set_animation(self.animation_walk, False)
         if keys[pygame.K_a] :
             if self.velocity.x > (-self.max_walk_speed) :
                 self.velocity.x -= self.walk_acceleration
-                self.annimation = self.walk_animation
-                self.sprite_flipped = True
+                self.set_animation(self.animation_walk, True)
         if keys[pygame.K_w] :
             if self.is_grounded == True :
                 self.is_grounded = False
-                self.velocity.y -= self.jump_velocity
-        
-        if abs(self.velocity.x) <= self.walk_animation_threashold :
-            self.annimation = None
-
+                self.velocity.y += -(self.jump_velocity)
 
         # Gravity
         if self.is_grounded == False :
@@ -81,14 +90,13 @@ class Player(pygame.sprite.Sprite):
                     self.velocity = direction_travelling * 0
 
         # Animations
-        if self.annimation == None :
-            self.image = self.frames[0]
+        if abs(self.velocity.x) <= self.walk_animation_threashold :
+            self.set_animation(self.animation_idle, None)
+
+        if self.animation == None :
+            self.image = pygame.transform.scale_by(self.animation_idle.animate(), self.scale_factor).convert_alpha()
         else :
-            if self.sprite_flipped :
-                self.image = pygame.transform.flip(self.frames[self.annimation.animate()], True, False).convert_alpha()
-                self.image.set_colorkey((0, 0, 0))
-            else :
-                self.image = self.frames[self.annimation.animate()]
+            self.image = pygame.transform.scale_by(self.animation.animate(), self.scale_factor).convert_alpha()
 
         # Update Player
         self.rect.x += self.velocity.x * delta_time
@@ -99,3 +107,6 @@ class Player(pygame.sprite.Sprite):
         self.is_grounded = value
     def get_grounded(self) -> bool :
         return self.is_grounded
+
+
+

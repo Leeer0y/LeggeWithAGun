@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 import pygame
 from pygame.surface import Surface
 
@@ -30,39 +31,45 @@ class SpriteSheet:
 
 
 
-class animation:
-    def __init__(self, frames : list[int], time : float) -> None:
-        self.frame_sequence = frames # frame numbers in order of animation
-        self.animation_time = time # (seconds) time that it takes for the animation to finish
+class Animation :
+    def __init__(self, frames : list[pygame.Surface], time : float, sequence = None) -> None:
+        self.frames = frames
+        self.animation_time = time
+        self.sequence = sequence
         
-        self.current_itteration = 0
         self.clock = pygame.time.Clock()
-
-        self.animation_percentage = 0.0 # percentage of progress through the animation
-        self.animation_step = 1 + len(self.frame_sequence) / self.animation_time # percentage to get to the next frame
-        self.animation_time_passed = 0.0
-
-    def timer(self) :
-        # think of the ammount of frames in the animation like fps
-        self.clock.tick()
-        delta_time = self.clock.get_time() # Time between calls (secconds)
-        self.animation_time_passed += delta_time
-        self.animation_percentage = self.animation_time_passed/self.animation_time # results in total time passed / goal time - percetnatge of completation
-
-        if (self.animation_percentage >= self.animation_step*(self.current_itteration + 1)) :
-            return True
+        self.animation_percentage = 0.0
+        self.animation_step = 1 + len(self.frames) / self.animation_time
+        self.animation_frame = 0
         
+        self.is_flipped = False
+
+    def timer(self) -> bool :
+        self.clock.tick()
+        delta_time = self.clock.get_time()
+
+        self.animation_percentage += delta_time/self.animation_time
+        if self.animation_percentage >= self.animation_step*(self.animation_frame + 1) :
+            return True
+
         return False
-    
-    def animate(self):
-        if self.timer():
-            # Timer has ticked, its time to change to the next frame in the animation
-            if (self.current_itteration < len(self.frame_sequence) - 1):
-                self.current_itteration += 1
+
+    def animate(self) -> pygame.Surface :
+        if self.sequence == None :
+            self.sequence = list(range(len(self.frames)))
+
+        if self.timer() :
+            if self.animation_frame < len(self.sequence) - 1 :
+                self.animation_frame += 1
             else :
-                self.current_itteration = 0
+                self.animation_frame = 0
                 self.animation_percentage = 0
-                self.animation_time_passed = 0
+       
+        frame = self.frames[self.sequence[self.animation_frame]]
+        if self.is_flipped :
+            return pygame.transform.flip(frame, True, False)
 
-        return self.frame_sequence[self.current_itteration]
+        return frame
 
+    def flipped(self, val = True) :
+        self.is_flipped = val
