@@ -1,52 +1,46 @@
 import pygame
-import player
-import gemoetry
-from player import Player
+import sys
+import scene
 
-#Init pygame
-pygame.init()
+# Scenes
+import infinite
 
-screen = pygame.display.set_mode((800, 800))
-clock = pygame.time.Clock()
+SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
+FPS = 60
 
-p = Player()
+class Game:
+    def __init__(self) -> None:
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.clock = pygame.time.Clock()
 
-entities_group = pygame.sprite.Group()
-entities_group.add(p)
+        self.game_state_manager = GameStateManager('infinite')
+        self.main_menu = scene.Scene(self.screen, self.game_state_manager)
+        self.infinite = infinite.Infinite(self.screen, self.game_state_manager) 
 
-gemoetry_group = pygame.sprite.Group()
+        self.states = {'main_menu':self.main_menu, 'infinite':self.infinite}
 
-g = gemoetry.rect((0, 0, 0), pygame.Rect(0, 790, 800, 20))
-gemoetry_group.add(g)
+    def  run(self):
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+        
+            self.states[self.game_state_manager.get_state()].update()
 
-# Gameloop
-running = True
-while running:
-    #limit FPS
-    clock.tick(60)
+            pygame.display.update()
+            self.clock.tick(FPS)
 
-    # Delta time calculations
-    delta_time = clock.get_time() / 1000 
+class GameStateManager:
+    def __init__(self, currentState) -> None:
+        self.currentState = currentState
     
-    # Check for events
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    def get_state(self):
+        return self.currentState
 
-   
-    # Set background
-    screen.fill((255, 0, 0))
+    def set_state(self, state):
+        state.currentState = state
 
-    entities_group.draw(screen)
-    entities_group.update()
-
-    gemoetry_group.draw(screen)
-
-    # Colision
-    entity_colisions = pygame.sprite.groupcollide(entities_group, gemoetry_group, False, False)
-    if entity_colisions :
-        for i in entity_colisions :
-            i.set_grounded(True)
-
-
-    pygame.display.flip()
+if __name__ == '__main__':
+    game = Game()
+    game.run()
