@@ -14,7 +14,7 @@ class SpriteSheet:
         height = frame_size[1] # size of sprite in sheet
 
         for row in range(int(self.sheet.get_height() / height)):
-            # for every row in the image
+            # for every row in the imagehe
             for collumn in range(int(self.sheet.get_width() / width)):
                 # for evey colum in the image
                 image = pygame.Surface((width, height)).convert_alpha()
@@ -63,6 +63,7 @@ class Animation :
         self.animation_percentage = 0.0
         self.animation_step = 1 + len(self.frames) / self.animation_time # the required percentage for the animation to change
         self.animation_frame = 0 # current frame index, used for calulations
+        self.time_passed = 0.0
         
         self.is_flipped = False # Flip flag
 
@@ -70,23 +71,27 @@ class Animation :
         self.end_hook = None
         self.end_hook_obj = None
 
-    def timer(self) -> bool :
-        # Update clock
-        delta_time = self.clock.get_time()
+    def reset_variables(self) :
+        self.animation_frame = 0 
+        self.time_passed = 0.0
+        self.animation_percentage = 0
+        self.clock.tick_busy_loop
 
-        self.animation_percentage += delta_time/self.animation_time #  adds the time passed as a percentage of the goal time
+    def timer(self, delta_time) -> bool :
+        # Update clock
+        self.time_passed += delta_time
+        self.animation_percentage = self.time_passed/self.animation_time #  adds the time passed as a percentage of the goal time
         if self.animation_percentage >= self.animation_step*(self.animation_frame + 1) :
             return True
 
-        self.clock.tick()
         return False
 
-    def animate(self) -> pygame.Surface :
+    def animate(self, delta_time) -> pygame.Surface :
         if self.sequence == None :
             # no sequence specified, assume in order
             self.sequence = list(range(len(self.frames)))
 
-        if self.timer() :
+        if self.timer(delta_time) :
             # Every time the sprite is meant to change
 
             # repeate if index goes out of bounds
@@ -96,15 +101,16 @@ class Animation :
                 if self.end_hook != None :
                     self.end_hook()
 
-                self.animation_frame = 0
-                self.animation_percentage = 0
-       
+                self.reset_variables()
+
         frame = self.frames[self.sequence[self.animation_frame]] # the frame to be returned
 
         # check if the image is flipped
         if self.is_flipped :
             frame = pygame.transform.flip(frame, True, False)
 
+
+        self.clock.tick(60)
         return frame
 
     def flipped(self, val = True) :

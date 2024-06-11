@@ -21,6 +21,8 @@ class Infinite(scene.Scene) :
         self.entities.add(self.player)
         self.entities.add(self.zombie)
 
+        self.monsters = [self.zombie]
+
         self.geometry = pygame.sprite.Group()
         self.geometry.add(self.ground)
 
@@ -31,6 +33,8 @@ class Infinite(scene.Scene) :
 
         self.sidescroll_speed = 35
         self.platform_chance = 4 # percent
+
+        self.player.set_attack_list(self.monsters)
 
     def update(self):
         # Timing

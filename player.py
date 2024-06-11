@@ -1,6 +1,8 @@
 import pygame
+from pygame.sprite import Sprite
 import entity
 import spritesheet
+from zombie import Zombie
 # TODO
 # Make direction a vector, and velocity a scalar quantity
 
@@ -14,9 +16,9 @@ class Player(entity.Entity):
         self.frames_walk = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Walk.png").load_all_images((22, 38))
         self.frames_attack = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Attack.png").load_all_images((43, 38))
 
-        self.animation_idle = spritesheet.Animation(self.frames_idle, 600)
-        self.animation_walk = spritesheet.Animation(self.frames_walk, 200)
-        self.animation_attack = spritesheet.Animation(self.frames_attack, 200)
+        self.animation_idle = spritesheet.Animation(self.frames_idle, 1500)
+        self.animation_walk = spritesheet.Animation(self.frames_walk, 100)
+        self.animation_attack = spritesheet.Animation(self.frames_attack, 50)
 
         self.scale_factor = 4
         
@@ -33,6 +35,9 @@ class Player(entity.Entity):
         # Flaag
         self.is_attacking = False
 
+        # Game Logic
+        self.attack_group = None
+
     def set_animation(self, animation : spritesheet.Animation, flipped = None) :
         if animation == self.animation and self.is_flipped == flipped :
             return
@@ -47,7 +52,14 @@ class Player(entity.Entity):
         self.set_animation(self.animation_attack.on_end(self, lambda : self.set_is_attacking(False)))
         self.is_animation_locked = True
         self.set_is_attacking(True)
-        print("sigma")
+        print(type(self.attack_group))
+        if type(self.attack_group) == list :
+            hit_range = pygame.Rect(self.rect.x, self.rect.y, 500, 200)
+            hit = hit_range.collideobjects(self.attack_group, key=lambda o : o.rect)
+            if type(hit) == Zombie :
+                    hit.hurt(20)
+
+        
         
 
     def update(self) :
@@ -77,9 +89,9 @@ class Player(entity.Entity):
             self.set_animation(self.animation_idle, None)
 
         if self.animation == None :
-            self.image = pygame.transform.scale_by(self.animation_idle.animate(), self.scale_factor).convert_alpha()
+            self.image = pygame.transform.scale_by(self.animation_idle.animate(delta_time * 1000), self.scale_factor).convert_alpha()
         else :
-            self.image = pygame.transform.scale_by(self.animation.animate(), self.scale_factor).convert_alpha()
+            self.image = pygame.transform.scale_by(self.animation.animate(delta_time * 1000), self.scale_factor).convert_alpha()
 
         if self.is_flipped :
             self.image = pygame.transform.flip(self.image, True, False)
@@ -92,6 +104,9 @@ class Player(entity.Entity):
     def set_is_attacking(self, val) :
         self.is_animation_locked = val
         self.is_attacking = val
+
+    def set_attack_list(self, objs) :
+        self.attack_group = objs
        
 
 
