@@ -19,7 +19,7 @@ class Player(entity.Entity):
 
         self.animation_idle = spritesheet.Animation(self.frames_idle, 1500)
         self.animation_walk = spritesheet.Animation(self.frames_walk, 100)
-        self.animation_attack = spritesheet.Animation(self.frames_attack, 50)
+        self.animation_attack = spritesheet.Animation(self.frames_attack, 25)
         self.animation_die = spritesheet.Animation(self.frames_die, 100)
 
         self.scale_factor = 4
@@ -38,7 +38,7 @@ class Player(entity.Entity):
 
         # Game Logic
         self.attack_group = None
-        self.health = 100
+        self.health = 1000
         self.attack_damage = 60
 
     def set_animation(self, animation : spritesheet.Animation, flipped = None) :
@@ -55,13 +55,11 @@ class Player(entity.Entity):
         self.set_animation(self.animation_attack.on_end(self, lambda : self.set_is_attacking(False)))
         self.is_animation_locked = True
         self.set_is_attacking(True)
-        print(type(self.attack_group))
         if type(self.attack_group) == list :
             hit_range = pygame.Rect(self.rect.x, self.rect.y, 500, 200)
-            hit = hit_range.collideobjects(self.attack_group, key=lambda o : o.rect)
-            if type(hit) == Zombie :
-                    hit.hurt(self.attack_damage)
-
+            for i in self.attack_group :
+                if self.rect.colliderect(i.rect) :
+                    i.hurt(self.attack_damage)
     def hurt(self, val) :
         self.health -= val
         if self.health <= 0 :
@@ -72,6 +70,15 @@ class Player(entity.Entity):
         self.set_is_attacking(False)
         self.set_animation(self.animation_die.on_end(self, self.kill()))
         self.is_animation_locked = True
+
+    def jump(self) :
+        if self.is_jumping == True :
+            self.is_grounded = False
+            if abs(self.velocity.y) < self.jump_velocity_max :
+                self.velocity.y -= self.jump_acceleration
+            else :
+                self.is_jumping = False
+
         
 
     def update(self) :
@@ -91,8 +98,7 @@ class Player(entity.Entity):
                 self.set_animation(self.animation_walk, True)
         if keys[pygame.K_w] :
             if self.is_grounded == True :
-                self.is_grounded = False
-                self.velocity.y += -(self.jump_velocity)
+                self.is_jumping = True
         if keys[pygame.K_e] :
             if self.is_attacking == False :
                 self.attack()
@@ -107,6 +113,9 @@ class Player(entity.Entity):
 
         if self.is_flipped :
             self.image = pygame.transform.flip(self.image, True, False)
+
+        if self.is_jumping :
+            self.jump()
 
         # Update Player
         self.rect.x += self.velocity.x * delta_time

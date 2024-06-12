@@ -88,7 +88,7 @@ class Text(Element) :
     # happens whenever the texts position or size changes
     def text_change_event(self) :
         self.size = self.font.size(self.text)
-        self.apply_anchor()
+        #self.apply_anchor()
 
     def render(self, screen : pygame.Surface) :
         rendered = self.font.render(self.text, True, self.colour) # Returns a surface object

@@ -11,6 +11,7 @@ class Entity(pygame.sprite.Sprite):
 
         # Flags
         self.is_grounded = False
+        self.is_jumping = False
         self.is_flipped = False
         self.is_animation_locked = False
 
@@ -25,7 +26,8 @@ class Entity(pygame.sprite.Sprite):
         # Movement
         self.max_walk_speed = 100
         self.walk_acceleration = 25
-        self.jump_velocity = 200
+        self.jump_acceleration = 100
+        self.jump_velocity_max = 400
 
         # Animation
         self.animation : spritesheet.Animation
@@ -40,6 +42,10 @@ class Entity(pygame.sprite.Sprite):
             self.is_flipped = flipped
 
         self.animation = animation
+
+    def set_position(self, vec2 : pygame.Vector2) :
+        self.rect.x = int(vec2.x)
+        self.rect.y = int(vec2.y)
     
     def update(self) :
         
