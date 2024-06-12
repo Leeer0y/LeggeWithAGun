@@ -4,17 +4,19 @@ import scene
 
 # Scenes
 import infinite
+import main_menu
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 800
 FPS = 60
 
 class Game:
     def __init__(self) -> None:
+        pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.clock = pygame.time.Clock()
 
-        self.game_state_manager = GameStateManager('infinite')
-        self.main_menu = scene.Scene(self.screen, self.game_state_manager)
+        self.game_state_manager = GameStateManager('main_menu')
+        self.main_menu = main_menu.MainMenu(self.screen, self.game_state_manager)
         self.infinite = infinite.Infinite(self.screen, self.game_state_manager) 
 
         self.states = {'main_menu':self.main_menu, 'infinite':self.infinite}
