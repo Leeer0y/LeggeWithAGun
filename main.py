@@ -41,7 +41,7 @@ class GameStateManager:
         return self.currentState
 
     def set_state(self, state):
-        state.currentState = state
+        self.currentState = state
 
 if __name__ == '__main__':
     game = Game()
