@@ -12,6 +12,7 @@ class Entity(pygame.sprite.Sprite):
         # Flags
         self.is_grounded = False
         self.is_flipped = False
+        self.is_animation_locked = False
 
         # Physics
         self.velocity = pygame.Vector2(0.0, 0.0)
@@ -30,13 +31,14 @@ class Entity(pygame.sprite.Sprite):
         self.animation : spritesheet.Animation
 
 
-
-    def set_animation(self, animation, flipped = None) :
-        if animation == self.animation :
+    def set_animation(self, animation : spritesheet.Animation, flipped = None) :
+        if animation == self.animation and self.is_flipped == flipped :
+            return
+        if self.is_animation_locked :
             return
         if flipped != None :
             self.is_flipped = flipped
-        animation.flipped(self.is_flipped)
+
         self.animation = animation
     
     def update(self) :

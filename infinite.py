@@ -35,6 +35,7 @@ class Infinite(scene.Scene) :
         self.platform_chance = 4 # percent
 
         self.player.set_attack_list(self.monsters)
+        self.zombie.set_target(self.player)
 
     def update(self):
         # Timing

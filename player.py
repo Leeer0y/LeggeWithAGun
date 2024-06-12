@@ -30,13 +30,13 @@ class Player(entity.Entity):
 
         # Animation
         self.walk_animation_threashold = 5
-        self.is_animation_locked = False
 
         # Flaag
         self.is_attacking = False
 
         # Game Logic
         self.attack_group = None
+        self.attack_damage = 60
 
     def set_animation(self, animation : spritesheet.Animation, flipped = None) :
         if animation == self.animation and self.is_flipped == flipped :
@@ -57,7 +57,7 @@ class Player(entity.Entity):
             hit_range = pygame.Rect(self.rect.x, self.rect.y, 500, 200)
             hit = hit_range.collideobjects(self.attack_group, key=lambda o : o.rect)
             if type(hit) == Zombie :
-                    hit.hurt(20)
+                    hit.hurt(self.attack_damage)
 
         
         
