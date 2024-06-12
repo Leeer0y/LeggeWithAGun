@@ -15,10 +15,12 @@ class Player(entity.Entity):
         self.frames_idle = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Idle.png").load_all_images((24, 38))
         self.frames_walk = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Walk.png").load_all_images((22, 38))
         self.frames_attack = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Attack.png").load_all_images((43, 38))
+        self.frames_die = spritesheet.SpriteSheet("./Assets/Sprites/Skeloton/Skeleton Dead.png").load_all_images((33, 38))
 
         self.animation_idle = spritesheet.Animation(self.frames_idle, 1500)
         self.animation_walk = spritesheet.Animation(self.frames_walk, 100)
         self.animation_attack = spritesheet.Animation(self.frames_attack, 50)
+        self.animation_die = spritesheet.Animation(self.frames_die, 100)
 
         self.scale_factor = 4
         
@@ -36,6 +38,7 @@ class Player(entity.Entity):
 
         # Game Logic
         self.attack_group = None
+        self.health = 100
         self.attack_damage = 60
 
     def set_animation(self, animation : spritesheet.Animation, flipped = None) :
@@ -59,7 +62,16 @@ class Player(entity.Entity):
             if type(hit) == Zombie :
                     hit.hurt(self.attack_damage)
 
-        
+    def hurt(self, val) :
+        self.health -= val
+        if self.health <= 0 :
+            self.die()
+
+    def die(self) :
+        # End of game
+        self.set_is_attacking(False)
+        self.set_animation(self.animation_die.on_end(self, self.kill()))
+        self.is_animation_locked = True
         
 
     def update(self) :

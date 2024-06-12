@@ -10,8 +10,10 @@ class Zombie(entity.Entity) :
         self.frames_idle = self.sheet.load_row([32, 32], 0, 8)
         self.frames_walk = self.sheet.load_row([32, 32], 2, 8)
         self.frames_die = self.sheet.load_row([32, 32], 5)
+        self.frames_attack = self.sheet.load_row([32, 32], 1, 7)
         self.animation_idle = spritesheet.Animation(self.frames_idle, 100)
         self.animation_walk = spritesheet.Animation(self.frames_walk, 100)
+        self.animation_attack = spritesheet.Animation(self.frames_attack, 200)
         self.animation_die = spritesheet.Animation(self.frames_die, 50)
 
         self.scale_factor = 3
@@ -23,7 +25,9 @@ class Zombie(entity.Entity) :
 
         # Game logic
         self.health = 100
+        self.attack_damage = 30
         self.target : entity.Entity = entity.Entity()
+        self.is_attacking = False
         
     def update(self):
         super().update()
@@ -41,7 +45,14 @@ class Zombie(entity.Entity) :
 
         # Follow target (if exists)
         if self.target :
-           self.go_towards(pygame.Vector2(self.target.rect.x, self.target.rect.y)) 
+            self.go_towards(pygame.Vector2(self.target.rect.x, self.target.rect.y))
+            
+            if self.is_attacking == False and self.rect.colliderect(self.target.rect) :
+                # hurt player
+                self.set_animation(self.animation_attack.on_end(self, lambda : self.set_attacking(False)))
+                self.set_attacking(True)
+                self.attack(self.target)
+
 
         # Update Sprite Coordinates
         self.rect.x += self.velocity.x * delta_time
@@ -54,9 +65,17 @@ class Zombie(entity.Entity) :
 
     def set_target(self, ent : entity.Entity) :
         self.target = ent
+
+    def attack(self, target) :
+        target.hurt(self.attack_damage)
+
+    def set_attacking(self, val : bool) :
+        self.is_attacking = val
+        self.is_animation_locked = val
     
 
     def die(self) :
+        self.set_attacking(False)
         self.set_animation(self.animation_die.on_end(self, lambda : self.kill()))
         self.is_animation_locked = True
 
