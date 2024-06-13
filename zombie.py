@@ -1,3 +1,10 @@
+#############################
+# Author: Leo Pearce
+# Created: 10/6/24
+# Last Edited: 11/6/24
+# Description: The zombie object
+#############################
+
 import pygame
 import entity
 import spritesheet
@@ -7,6 +14,7 @@ class Zombie(entity.Entity) :
         super().__init__()
         self.sheet = spritesheet.SpriteSheet("./Assets/Sprites/Zombie.png")
 
+        # Animation
         self.frames_idle = self.sheet.load_row([32, 32], 0, 8)
         self.frames_walk = self.sheet.load_row([32, 32], 2, 8)
         self.frames_die = self.sheet.load_row([32, 32], 5)
@@ -18,6 +26,7 @@ class Zombie(entity.Entity) :
 
         self.scale_factor = 3
 
+        # Image
         self.image = pygame.transform.scale_by(self.frames_idle[0], self.scale_factor)
         self.rect = self.image.get_rect()
 

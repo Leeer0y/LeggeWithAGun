@@ -1,3 +1,10 @@
+#############################
+# Author: Leo Pearce
+# Created: 10/6/24
+# Last Edited: 13/6/24
+# Description: The games main infinite gamemode scene
+#############################
+
 import pygame
 import scene
 import player
@@ -58,14 +65,44 @@ class Infinite(scene.Scene) :
         self.health_text = ui.Text().set_text(str(self.player.health)).set_font(pygame.font.Font("./Assets/Fonts/Tiny5-Regular.ttf", 30)).set_colour((255, 0, 0))
         self.ui_foreground.add_element(self.health_text)
         
+        # Difficulty Selection
+        screen_center = pygame.Vector2(screen.get_rect().center)
+        self.has_chosen_difficulty = False
+        self.can_choose = False
+        self.ui_difficulty = ui.UI(screen)
+        button_easy_text  = ui.Text().set_text("Easy").set_colour((255, 255, 255))
+        button_easy = ui.Button().set_anchor(ui.Anchor.CENTER).set_position(pygame.Vector2(screen_center.x, screen_center.y - 150)).set_text_obj(button_easy_text)
+        button_easy = button_easy.set_event(lambda : self.set_difficulty(0))
 
+        button_med_text  = ui.Text().set_text("Medium").set_colour((255, 255, 255))
+        button_med = ui.Button().set_anchor(ui.Anchor.CENTER).set_position(pygame.Vector2(screen_center.x, screen_center.y)).set_text_obj(button_med_text)
+        button_med = button_med.set_event(lambda : self.set_difficulty(1))
+        
+        button_hard_text  = ui.Text().set_text("Hard").set_colour((255, 255, 255))
+        button_hard = ui.Button().set_anchor(ui.Anchor.CENTER).set_position(pygame.Vector2(screen_center.x, screen_center.y + 150)).set_text_obj(button_hard_text)
+        button_hard = button_hard.set_event(lambda : self.set_difficulty(2))
+        
+        self.ui_difficulty.add_element(button_easy)
+        self.ui_difficulty.add_element(button_med)
+        self.ui_difficulty.add_element(button_hard)
+    
+    def update(self) :
+        self.screen.fill((19, 26, 48))
+        
+        if self.can_choose == False :
+            if pygame.mouse.get_pressed()[0] != True :
+                self.can_choose = True
+        if self.has_chosen_difficulty == True :
+            self.game_loop()
+        else :
+            if self.can_choose == True :
+                self.ui_difficulty.render_all()
 
-    def update(self):
+    def game_loop(self):
         # Timing
         delta_time = self.clock.get_time() / 1000
 
         # Background UI
-        self.screen.fill((25, 25, 25))
         self.ui_background.render_all()
 
         # Random platform generation
@@ -119,6 +156,23 @@ class Infinite(scene.Scene) :
             z = zombie.Zombie()
             z.set_position(pygame.Vector2(random.randint(0, 800), 0))
             z.set_target(self.player)
+            z.health = random.randint(70, 120)
             self.entities.add(z)
             self.monsters.append(z)
             self.player.set_attack_list(self.monsters)
+
+    # 0 = Easy | 1 = Medium | 2 = Hard
+    def set_difficulty(self, difficulty) :
+        if difficulty == 0 :
+            self.player.attack_damage = 100
+            self.player.health = 1200
+        if difficulty == 1 :
+            self.player.attack_damage = 75
+            self.player.health = 1000
+        if difficulty == 2 :
+            self.player.attack_damage = 50
+            self.player.health = 800
+
+        self.has_chosen_difficulty = True
+
+

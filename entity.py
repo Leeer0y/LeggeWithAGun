@@ -1,3 +1,10 @@
+#############################
+# Author: Leo Pearce
+# Created: 10/6/24
+# Last Edited: 11/6/24
+# Description: The entity base class
+#############################
+
 import pygame
 import spritesheet
 

@@ -1,3 +1,12 @@
+#############################
+# Author: Leo Pearce
+# Created: 9/6/24
+# Last Edited: 9/6/24
+# Description: The geometry class, mainly used for orginisation of ground objects
+# In the early days of the game it was going to be a side scroller so it was mainly 
+# Used for platforms and ground obsticals, but its no longer as necessary
+#############################
+
 import pygame
 from pygame.key import get_mods
 

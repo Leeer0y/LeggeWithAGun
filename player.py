@@ -1,11 +1,15 @@
+#############################
+# Author: Leo Pearce
+# Created: 27/5/24
+# Last Edited: 13/6/24
+# Description: The player object
+#############################
+
 import pygame
 from pygame.sprite import Sprite
 import entity
 import spritesheet
 from zombie import Zombie
-# TODO
-# Make direction a vector, and velocity a scalar quantity
-
 
 class Player(entity.Entity):
     def __init__(self) -> None:
@@ -52,14 +56,17 @@ class Player(entity.Entity):
         self.animation = animation
 
     def attack(self) :
-        self.set_animation(self.animation_attack.on_end(self, lambda : self.set_is_attacking(False)))
+        self.set_animation(self.animation_attack.on_end(self, lambda : self.set_is_attacking(False))) # sets call back so attacking is false at end of animation
         self.is_animation_locked = True
         self.set_is_attacking(True)
+
+        # goes through every atackable entity and checks if they are in rage, if so attack them
         if type(self.attack_group) == list :
-            hit_range = pygame.Rect(self.rect.x, self.rect.y, 500, 200)
+            hit_range = pygame.Rect(self.rect.x, self.rect.y, 500, 200) # Hard coded value, should later make a player variable
             for i in self.attack_group :
                 if self.rect.colliderect(i.rect) :
-                    i.hurt(self.attack_damage)
+                    i.hurt(self.attack_damage) # inflict the players damage to the entity
+
     def hurt(self, val) :
         self.health -= val
         if self.health <= 0 :
@@ -71,6 +78,7 @@ class Player(entity.Entity):
         self.set_animation(self.animation_die.on_end(self, self.kill()))
         self.is_animation_locked = True
 
+    # Jump class helps prevent weird collision and jump issues, and smooths the jump as velocity is gradually increased
     def jump(self) :
         if self.is_jumping == True :
             self.is_grounded = False
@@ -80,7 +88,7 @@ class Player(entity.Entity):
                 self.is_jumping = False
 
         
-
+    # main loop of player object when active
     def update(self) :
         super().update()
         delta_time = self.clock.get_time() / 1000

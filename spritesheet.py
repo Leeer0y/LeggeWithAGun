@@ -1,3 +1,10 @@
+#############################
+# Author: Leo Pearce
+# Created: 9/6/24
+# Last Edited: 11/6/24
+# Description: Contains sprite loading and animation objects
+#############################
+
 from collections.abc import Sequence
 import pygame
 import ctypes

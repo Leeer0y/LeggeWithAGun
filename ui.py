@@ -1,15 +1,12 @@
-####################
-# Title: UI module - Revision
+#############################
 # Author: Leo Pearce
-# Date: 6 Dec 2023 
-# Revised: 12 Jun 2024
-# Description: Handles all ui of the game and displaying menus
-####################
+# Created: 11/6/24
+# Last Edited: 13/6/24
+# Description: A module which contains the UI objects
+#############################
 
-from typing import override
 import pygame
 import enum
-import json
 
 # Determines the positional anchor when setting the postiion of something
 class Anchor(enum.Enum) :
@@ -87,7 +84,10 @@ class Text(Element) :
 
     # happens whenever the texts position or size changes
     def text_change_event(self) :
+        original_size = self.size
         self.size = self.font.size(self.text)
+        if self.anchor == Anchor.CENTER :
+            self.position.x -= (self.size[0] - original_size[0]) / 2
         #self.apply_anchor()
 
     def render(self, screen : pygame.Surface) :

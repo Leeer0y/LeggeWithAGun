@@ -1,3 +1,11 @@
+#############################
+# Author: Leo Pearce
+# Created: 10/6/24
+# Last Edited: 13/6/24
+# Description: The scence class, contains nececary componetnts for a scene object and allows type checking and
+# error provention
+#############################
+
 import pygame
 
 class Scene :

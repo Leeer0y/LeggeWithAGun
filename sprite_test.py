@@ -1,3 +1,14 @@
+#############################
+# Author: Leo Pearce
+# Created: 9/6/24
+# Last Edited: 9/6/24
+# Description: Sprite testing tool, acted as a stub for the game while developing the sprite and animation system (NO LONGER WORKING)
+#############################
+
+###################################
+# CODE NO LONGER WORKS OR IS USED #
+###################################
+
 import pygame
 import spritesheet
 from pygame.transform import scale
