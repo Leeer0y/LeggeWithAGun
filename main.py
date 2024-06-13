@@ -31,6 +31,7 @@ class Game:
         self.infinite = infinite.Infinite(self.screen, self.game_state_manager) 
 
         self.states = {'main_menu':self.main_menu, 'infinite':self.infinite}
+        self.game_state_manager.on_state_change(lambda : self.reset_state())
 
     def  run(self):
         # Game Loop
@@ -45,16 +46,25 @@ class Game:
             pygame.display.update()
             self.clock.tick(FPS)
 
+    def reset_state(self) :
+        self.states[self.game_state_manager.get_state()].__init__(self.screen, self.game_state_manager)
+
 # Game state manager, basicly a string that any scene can access (a game_state_manager is a required parameter for scenes) and set to change the scene
 class GameStateManager:
     def __init__(self, currentState) -> None:
         self.currentState = currentState
+        self.state_change_hook : function = lambda : print("state change")
     
     def get_state(self):
         return self.currentState
 
     def set_state(self, state):
         self.currentState = state
+        self.state_change_hook()
+
+    def on_state_change(self, func) :
+        self.state_change_hook = func
+
 
 if __name__ == '__main__':
     game = Game()

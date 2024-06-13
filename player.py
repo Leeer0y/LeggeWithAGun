@@ -45,6 +45,9 @@ class Player(entity.Entity):
         self.health = 1000
         self.attack_damage = 60
 
+        # Hooks
+        self.on_death : function = lambda : print("Player Died")
+
     def set_animation(self, animation : spritesheet.Animation, flipped = None) :
         if animation == self.animation and self.is_flipped == flipped :
             return
@@ -75,7 +78,7 @@ class Player(entity.Entity):
     def die(self) :
         # End of game
         self.set_is_attacking(False)
-        self.set_animation(self.animation_die.on_end(self, self.kill()))
+        self.set_animation(self.animation_die.on_end(self, lambda : self.on_death()))
         self.is_animation_locked = True
 
     # Jump class helps prevent weird collision and jump issues, and smooths the jump as velocity is gradually increased
@@ -136,6 +139,8 @@ class Player(entity.Entity):
 
     def set_attack_list(self, objs) :
         self.attack_group = objs
-       
+      
+    def set_death_hook(self, func) :
+        self.on_death = func
 
 

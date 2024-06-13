@@ -81,22 +81,43 @@ class Infinite(scene.Scene) :
         button_hard_text  = ui.Text().set_text("Hard").set_colour((255, 255, 255))
         button_hard = ui.Button().set_anchor(ui.Anchor.CENTER).set_position(pygame.Vector2(screen_center.x, screen_center.y + 150)).set_text_obj(button_hard_text)
         button_hard = button_hard.set_event(lambda : self.set_difficulty(2))
-        
+
         self.ui_difficulty.add_element(button_easy)
         self.ui_difficulty.add_element(button_med)
         self.ui_difficulty.add_element(button_hard)
+
+        # Death screen
+        self.ui_death = ui.UI(screen)
+        death_text = ui.Text().set_text("You died on level " + str(self.level) + " !").set_colour((255, 0, 0)).set_font(pygame.font.Font("./Assets/Fonts/Tiny5-Regular.ttf", 35))
+        death_text = death_text.set_position(pygame.Vector2(screen_center.x, screen_center.y - 100)).set_anchor(ui.Anchor.CENTER)
+        button_main_menu_text = ui.Text().set_text("Main Menu").set_colour((255, 255, 255))
+        button_main_menu = ui.Button().set_anchor(ui.Anchor.CENTER).set_position(screen_center).set_text_obj(button_main_menu_text)
+        button_main_menu = button_main_menu.set_event(lambda : self.game_state_manager.set_state('main_menu'))
+        
+        self.ui_death.add_element(death_text)
+        self.ui_death.add_element(button_main_menu)
+
+        # Set up death sequencce
+        self.is_dead = False
+        self.player.set_death_hook(lambda : self.set_is_dead(True))
     
     def update(self) :
         self.screen.fill((19, 26, 48))
         
-        if self.can_choose == False :
-            if pygame.mouse.get_pressed()[0] != True :
-                self.can_choose = True
-        if self.has_chosen_difficulty == True :
-            self.game_loop()
+        if self.is_dead == False :
+            if self.can_choose == False :
+                if pygame.mouse.get_pressed()[0] != True :
+                    self.can_choose = True
+
+            if self.has_chosen_difficulty == True :
+                self.game_loop()
+            else :
+                if self.can_choose == True :
+                    self.ui_difficulty.render_all()
         else :
-            if self.can_choose == True :
-                self.ui_difficulty.render_all()
+            # player has died
+            self.ui_death.render_all()
+            
 
     def game_loop(self):
         # Timing
@@ -170,9 +191,10 @@ class Infinite(scene.Scene) :
             self.player.attack_damage = 75
             self.player.health = 1000
         if difficulty == 2 :
-            self.player.attack_damage = 50
+            self.player.attack_damage = 40
             self.player.health = 800
 
         self.has_chosen_difficulty = True
 
-
+    def set_is_dead(self, val : bool) :
+        self.is_dead = val
